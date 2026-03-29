@@ -6,8 +6,10 @@ public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
     public Transform focalPoint;
+    public GameObject powerUpIndicator;
 
     public bool hasPowerUp;
+    public bool hasStunPowerUp;
 
     private Rigidbody rb;
 
@@ -16,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private InputAction breakAction;
 
     private Coroutine powerUpRoutine;
+    private Coroutine stunRoutine;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,6 +38,15 @@ public class PlayerController : MonoBehaviour
         if (breakAction.IsPressed())
         {
             rb.linearVelocity = Vector3.zero;
+        }
+        //set powerUpIndicator
+        if (hasPowerUp)
+        {
+            powerUpIndicator.SetActive(true);
+        }
+        else
+        {
+            powerUpIndicator.SetActive(false);
         }
     }
 
@@ -59,11 +71,21 @@ public class PlayerController : MonoBehaviour
         {
             hasPowerUp = true;
             Destroy(other.gameObject);
-            if(powerUpRoutine != null)
+            if (powerUpRoutine != null)
             {
                 StopCoroutine(powerUpRoutine);
             }
             powerUpRoutine = StartCoroutine(PowerUpCooldown());
+        }
+        if (other.CompareTag("StunPowerUp"))
+        {
+            hasStunPowerUp = true;
+            Destroy(other.gameObject);
+            if (stunRoutine != null)
+            {
+                StopCoroutine(stunRoutine);
+            }
+            stunRoutine = StartCoroutine(StunPowerUpCoolDown());
         }
     }
 
@@ -71,5 +93,11 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(10f);
         hasPowerUp = false;
+    }
+
+    IEnumerator StunPowerUpCoolDown()
+    {
+        yield return new WaitForSeconds(5f);
+        hasStunPowerUp = false;
     }
 }
